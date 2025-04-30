@@ -6,43 +6,36 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.camera.view.CameraController
-import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.vladyslavv_ua.lab2.ui.theme.Lab2Theme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,7 +65,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-        // Create the photo file and get its URI
         fun createImageFile(): File {
             val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -128,30 +120,37 @@ fun SelfieApp(imageUri: Uri?, onTakePhoto: (() -> Unit)? = null) {
     }
 
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        bitmap?.let {
-            Image(
-                bitmap = it.asImageBitmap(),
-                contentDescription = "Selfie",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-
-            Button(onClick = { onTakePhoto?.invoke() }) {
-                Text("Зробити селфі")
+    Scaffold {
+        Column(modifier = Modifier
+            .padding(it)
+            .padding(16.dp).fillMaxSize()) {
+            bitmap?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Selfie",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                )
             }
-            Button(onClick = {
-                imageUri?.let { uri ->
-                    sendEmailWithAttachment(context, uri)
+
+            Spacer(modifier = Modifier.weight(.5f))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Button(onClick = { onTakePhoto?.invoke() }) {
+                    Text("Зробити селфі")
                 }
-            }) {
-                Text("Надіслати селфі")
+                Button(onClick = {
+                    imageUri?.let { uri ->
+                        sendEmailWithAttachment(context, uri)
+                    }
+                }) {
+                    Text("Надіслати селфі")
+                }
             }
         }
     }
@@ -165,7 +164,7 @@ fun sendEmailWithAttachment(context: Context, uri: Uri) {
         putExtra(Intent.EXTRA_SUBJECT, "ANDROID Мирошніченко Владислав")
         putExtra(
             Intent.EXTRA_TEXT,
-            "У вкладенні моє селфі.\nРепозиторій: https://github.com/yourusername/yourrepo"
+            "У вкладенні моє селфі.\nРепозиторій: https://github.com/vladyslavv-ua/androidLab2"
         )
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
